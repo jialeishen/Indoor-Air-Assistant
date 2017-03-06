@@ -21,7 +21,7 @@ class MyFrame(wx.Frame):
 		self.outppb.Bind(wx.EVT_TEXT, self.OutPpb)
 
 		#air change rate
-		self.ach = wx.Slider(panel, -1, 5, 0, 200, (20,100), (90,-1), 
+		self.ach = wx.Slider(panel, -1, 5, 0, 50, (20,100), (90,-1), 
 			style = wx.SL_HORIZONTAL|wx.SL_TOP)
 		self.ach.Bind(wx.EVT_SCROLL, self.ACHScroll)
 		self.achvalue = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,100), (35,-1))
@@ -268,7 +268,7 @@ def eqdynamic(outppb, achdis, achvent, v, source, sumvda, t, tdis):
 	return round(ppbt, 1)	
 
 def getsumvda(r1, a1, r2, a2, r3, a3, r4, a4, r5, a5, r6, a6, r7, a7, r8, a8, vt):
-	vd1 = 36.*(float(vt)*float(r1)*36000./(4.*float(vt)+float(r1)*36000.))
+	vd1 = 36.*(float(vt)*float(r1)*36000./(4.*float(vt)+float(r1)*36000.)) #convert cm/s to m/h (multiple conversion coefficient, 36)
 	vd2 = 36.*(float(vt)*float(r2)*36000./(4.*float(vt)+float(r2)*36000.))
 	vd3 = 36.*(float(vt)*float(r3)*36000./(4.*float(vt)+float(r3)*36000.))
 	vd4 = 36.*(float(vt)*float(r4)*36000./(4.*float(vt)+float(r4)*36000.))
@@ -280,8 +280,7 @@ def getsumvda(r1, a1, r2, a2, r3, a3, r4, a4, r5, a5, r6, a6, r7, a7, r8, a8, vt
 	return sumvda
 
 def getvt(ach):
-	vt0 = (float(ach)/20.)*0.6+0.1
-	vt = vt0*36.
+	vt = (float(ach)/5.)*0.6+0.1 #cm/s
 	return vt
 		
 if __name__ == '__main__':
@@ -314,7 +313,7 @@ if __name__ == '__main__':
 		('Carpet, Nylon',1.38e-05), ('Carpet, Olefin',1.01e-05), 
 		('Carpet, Wool',1.06e-05), ('Brick',1.59e-05), 
 		('Activated carbon cloth',2.24e-05)
-		])
+		]) #reaction probability of materials
 	app = wx.App()
 	MyFrame().Show()
 	app.MainLoop()
