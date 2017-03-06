@@ -121,37 +121,36 @@ class MyFrame(wx.Frame):
 		self.area8.Bind(wx.EVT_TEXT, self.AreaText8)
 
 		#show inppb result
-		self.inppb = wx.StaticText(panel, -1, 'Ozone', (500,450))
+		self.inppb = wx.StaticText(panel, -1, 'Ozone', pos = (350,425), size = (200,-1), style = wx.ALIGN_RIGHT)
 		self.inppb.SetForegroundColour('blue')
-		font = wx.Font(25, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
+		font = wx.Font(30, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
 		self.inppb.SetFont(font)
-		inppblabel = wx.StaticText(panel, -1, 'Indoor Ozone: ', (400,350))
+		inppblabel = wx.StaticText(panel, -1, 'Indoor Ozone: ', (190,350))
 
 
 	def OutPpb(self, event):
-		print self.outppb.GetValue()
 		self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
 		self.statusbar.SetStatusText('')
-	
+
 	def ACHScroll(self, event):
 		self.achvalue.SetValue(str(self.ach.GetValue()/10.0))
 		self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-		print 'ACH: ', self.ach.GetValue()/10.0
 		self.statusbar.SetStatusText('')
 	
 	def ACHText(self, event):
 		try:
 			if float(self.achvalue.GetValue()) >20.0:
 				self.ach.SetValue(200)
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
 			elif float(self.achvalue.GetValue()) <0.0:
 				self.ach.SetValue(0)
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
 			else:
 				self.ach.SetValue(int(float(self.achvalue.GetValue())*10))
-			print 'ACH: ', self.ach.GetValue()/10.0
+				self.statusbar.SetStatusText('')
 			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
 		except ValueError:
-			self.statusbar.SetStatusText('ValueError! Please input a number in (0,20)...')
+			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
 
 	def IndoorSourceText(self, event):
 		try:
