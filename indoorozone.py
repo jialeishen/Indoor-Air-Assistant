@@ -9,13 +9,16 @@ class MyFrame(wx.Frame):
 		wx.Frame.__init__(self, None, -1, 'Indoor Ozone', size = (800,600))
 		panel = wx.Panel(self)
 
+		self.SetMaxSize((800,600)) #fix the frame size
+		self.SetMinSize((800,600)) #fix the frame size
+
 		self.statusbar = self.CreateStatusBar()
 		self.statusbar.SetStatusText('Indoor Ozone Estimation')
 		
 		#outdoor ozone
 		self.outppb = wx.SpinCtrl(panel, -1, 'Outdoor Ozone', (30,40), (80,-1))
 		self.outppb.SetRange(0,10000)
-		self.outppb.SetValue(60)
+		self.outppb.SetValue(100)
 		outppblabel1 = wx.StaticText(panel, -1, 'Outdoor Ozone:', (20,20))
 		outppblabel2 = wx.StaticText(panel, -1, 'ppb', (115,40))
 		self.outppb.Bind(wx.EVT_TEXT, self.OutPpb)
@@ -41,7 +44,7 @@ class MyFrame(wx.Frame):
 		#button.Enable()
 		
 		#room volume
-		self.volume = wx.TextCtrl(panel, -1, '300', (200,40), (80,-1))
+		self.volume = wx.TextCtrl(panel, -1, '45', (200,40), (80,-1))
 		self.volume.Bind(wx.EVT_TEXT, self.VolumeText)
 		volumelabel1 = wx.StaticText(panel, -1, 'Room Volume:', (190,20))
 		volumelabel2 = wx.StaticText(panel, -1, 'm3', (285,40))
@@ -51,7 +54,7 @@ class MyFrame(wx.Frame):
 
 		self.material1 = wx.Choice(panel, -1, pos = (200,100), size = (180,-1), choices = materiallist)
 		self.material1.SetSelection(13)
-		self.area1 = wx.TextCtrl(panel, -1, '100', (390,100), (40,-1))
+		self.area1 = wx.TextCtrl(panel, -1, '15', (390,100), (40,-1))
 		materiallabel1 = wx.StaticText(panel, -1, 'Floor:', (190,75))
 		arealabel1 = wx.StaticText(panel, -1, 'm2', (435,100))
 		self.material1.Bind(wx.EVT_CHOICE, self.ChooseMaterial1)
@@ -59,8 +62,8 @@ class MyFrame(wx.Frame):
 
 		#material 2
 		self.material2 = wx.Choice(panel, -1, pos = (200,160), size = (180,-1), choices = materiallist)
-		self.material2.SetSelection(16)
-		self.area2 = wx.TextCtrl(panel, -1, '100', (390,160), (40,-1))
+		self.material2.SetSelection(21)
+		self.area2 = wx.TextCtrl(panel, -1, '15', (390,160), (40,-1))
 		materiallabel2 = wx.StaticText(panel, -1, 'Ceiling:', (190,135))
 		arealabel2 = wx.StaticText(panel, -1, 'm2', (435,160))
 		self.material2.Bind(wx.EVT_CHOICE, self.ChooseMaterial2)
@@ -69,7 +72,7 @@ class MyFrame(wx.Frame):
 		#material 3
 		self.material3 = wx.Choice(panel, -1, pos = (200,220), size = (180,-1), choices = materiallist)
 		self.material3.SetSelection(19)
-		self.area3 = wx.TextCtrl(panel, -1, '60', (390,220), (40,-1))
+		self.area3 = wx.TextCtrl(panel, -1, '30', (390,220), (40,-1))
 		materiallabel3 = wx.StaticText(panel, -1, 'Wall1:', (190,195))
 		arealabel3 = wx.StaticText(panel, -1, 'm2', (435,220))
 		self.material3.Bind(wx.EVT_CHOICE, self.ChooseMaterial3)
@@ -78,7 +81,7 @@ class MyFrame(wx.Frame):
 		#material 4
 		self.material4 = wx.Choice(panel, -1, pos = (200,280), size = (180,-1), choices = materiallist)
 		self.material4.SetSelection(21)
-		self.area4 = wx.TextCtrl(panel, -1, '60', (390,280), (40,-1))
+		self.area4 = wx.TextCtrl(panel, -1, '18', (390,280), (40,-1))
 		materiallabel4 = wx.StaticText(panel, -1, 'Wall2:', (190,255))
 		arealabel4 = wx.StaticText(panel, -1, 'm2', (435,280))
 		self.material4.Bind(wx.EVT_CHOICE, self.ChooseMaterial4)
@@ -86,8 +89,8 @@ class MyFrame(wx.Frame):
 
 		#material 5
 		self.material5 = wx.Choice(panel, -1, pos = (500,100), size = (180,-1), choices = materiallist)
-		self.material5.SetSelection(0)
-		self.area5 = wx.TextCtrl(panel, -1, '0', (690,100), (40,-1))
+		self.material5.SetSelection(39)
+		self.area5 = wx.TextCtrl(panel, -1, '15', (690,100), (40,-1))
 		materiallabel5 = wx.StaticText(panel, -1, 'Surface:', (490,75))
 		arealabel5 = wx.StaticText(panel, -1, 'm2', (735,100))
 		self.material5.Bind(wx.EVT_CHOICE, self.ChooseMaterial5)
@@ -95,8 +98,8 @@ class MyFrame(wx.Frame):
 
 		#material 6
 		self.material6 = wx.Choice(panel, -1, pos = (500,160), size = (180,-1), choices = materiallist)
-		self.material6.SetSelection(0)
-		self.area6 = wx.TextCtrl(panel, -1, '0', (690,160), (40,-1))
+		self.material6.SetSelection(45)
+		self.area6 = wx.TextCtrl(panel, -1, '10', (690,160), (40,-1))
 		materiallabel6 = wx.StaticText(panel, -1, 'Surface:', (490,135))
 		arealabel6 = wx.StaticText(panel, -1, 'm2', (735,160))
 		self.material6.Bind(wx.EVT_CHOICE, self.ChooseMaterial6)
