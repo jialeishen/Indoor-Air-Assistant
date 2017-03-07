@@ -9,15 +9,28 @@ class MyFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self, None, -1, 'Indoor Ozone PPB', size = (800,600))
 		panel = wx.Panel(self)
+		self.backgroundcolour = '#F5F5F5' #whitesmoke
+		panel.SetBackgroundColour(self.backgroundcolour)
 		self.paneldraw = wx.Panel(panel, wx.ID_ANY, style=wx.NO_BORDER, pos = (200,340), size = wx.Size(560,190))
-		self.paneldraw.SetBackgroundColour('normal')
+		self.paneldraw.SetBackgroundColour(self.backgroundcolour)
 		self.paneldraw.Show(False)
+		self.panellogo = wx.Panel(panel, wx.ID_ANY, style=wx.NO_BORDER, pos = (500,8), size = wx.Size(283,54))
 
 		self.SetMaxSize((800,600)) #fix the frame size
 		self.SetMinSize((800,600)) #fix the frame size
 
 		self.statusbar = self.CreateStatusBar()
 		self.statusbar.SetStatusText('Indoor Ozone Estimation')
+		
+		#information
+		self.info = wx.StaticText(panel, -1, 'Version: 1.0.0.20170307_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
+		self.info.SetForegroundColour('grey')
+		ifont = wx.Font(8, wx.DECORATIVE, wx.NORMAL, wx.NORMAL)
+		self.info.SetFont(ifont)
+
+		#show logo image
+		image = wx.Image("logo.jpg",wx.BITMAP_TYPE_JPEG)
+		logo = wx.StaticBitmap(self.panellogo, -1, wx.BitmapFromImage(image))
 		
 		#outdoor ozone
 		self.outppb = wx.SpinCtrl(panel, -1, 'Outdoor Ozone', (30,40), (80,-1))
@@ -175,16 +188,15 @@ class MyFrame(wx.Frame):
 		self.inppb.SetFont(font)
 		inppblabel = wx.StaticText(panel, -1, 'Indoor Ozone: ', (190,315))
 
-
+	#draw disinfection ppb curve
 	def DrawPpb(self):
-		#draw disinfection ppb curve
 		inppbresults = []
 		ta = 5*self.dtime.GetValue()
 		for t in xrange(ta+1):
 			inppbresults.append(eqdynamic(float(self.outppb.GetValue()), 
 				self.achd1.GetValue()/10.0, self.achd2.GetValue()/10.0, 
 				float(self.volume.GetValue()), 
-				500.*float(self.indoorsource.GetValue()), 
+				float(self.indoorsource.GetValue()), 
 				getsumvda(material.get(self.material1.GetStringSelection()), 
 					float(self.area1.GetValue()), 
 					material.get(self.material2.GetStringSelection()), 
@@ -208,6 +220,7 @@ class MyFrame(wx.Frame):
 		s_score = numpy.array(inppbresults)
 
 		self.figure_score = Figure()
+		self.figure_score.set_facecolor(self.backgroundcolour)
 		self.figure_score.set_figheight(2.4)
 		self.figure_score.set_figwidth(7.2)
 		self.axes_score = self.figure_score.add_subplot(111) #seperate the window into 1*1 matrix (subwindows), occupied the 1st subwindow
@@ -216,15 +229,16 @@ class MyFrame(wx.Frame):
 		self.axes_score.axhline(y = 140, color='r')
 		#self.axes_score.set_title('Indoor Ozone')
 		self.axes_score.grid(True)
-		self.axes_score.set_xlabel('Time (min)', fontsize=10)
-		self.axes_score.set_ylabel('Indoor Ozone (ppb)', fontsize=10)
+		self.axes_score.set_xlabel('Time (min)')
+		self.axes_score.set_ylabel('Indoor Ozone (ppb)')
+
 		FigureCanvas(self.paneldraw, -1, self.figure_score)
 
+	#show indoor ppb result
 	def ShowPpb(self):
-		#show indoor ppb result
 		return self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), 
 			self.ach.GetValue()/10.0, float(self.volume.GetValue()), 
-			500.*float(self.indoorsource.GetValue()), 
+			float(self.indoorsource.GetValue()), 
 			getsumvda(material.get(self.material1.GetStringSelection()), 
 				float(self.area1.GetValue()), 
 				material.get(self.material2.GetStringSelection()), 
@@ -521,17 +535,19 @@ class MyFrame(wx.Frame):
 			self.inppb.Show(True)
 
 def eqsteady(outppb, ach, v, source, sumvda):
-	ppbsteady = float(float(ach)*float(outppb)+float(source)/float(v))/(float(ach)+float(sumvda)/float(v))
-	return round(ppbsteady, 1)
+	ppbsteady = float(float(ach)*(float(outppb)/500.)+float(source)/float(v))/(float(ach)+float(sumvda)/float(v))
+	ppbsteady = ppbsteady*500.
+	return round(ppbsteady, 1) #the unit of output ppbt is ppb, the convertion coefficient is 500; the input unit should also be ppb
 
 def eqdynamic(outppb, achdis, achvent, v, source, sumvda, t, tdis):
-	initppb = float(float(achdis)*float(outppb))/(float(achdis)+float(sumvda)/float(v))
-	ppbtdis = (initppb-float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*tdis)+float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
+	initppb = float(float(achdis)*(float(outppb)/500.))/(float(achdis)+float(sumvda)/float(v))
+	ppbtdis = (initppb-float(float(achdis)*(float(outppb)/500.)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*tdis)+float(float(achdis)*(float(outppb)/500.)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
 	if t <= tdis:
-		ppbt = (initppb-float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*t)+float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
+		ppbt = (initppb-float(float(achdis)*(float(outppb)/500.)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*t)+float(float(achdis)*(float(outppb)/500.)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
 	else:
-		ppbt = (ppbtdis-float(float(achvent)*float(outppb))/(float(achvent)+float(sumvda)/float(v)))*math.exp(-(float(achvent)+float(float(sumvda)/float(v)))*(t-tdis))+float(float(achvent)*float(outppb))/(float(achvent)+float(sumvda)/float(v))	
-	return round(ppbt, 1)	
+		ppbt = (ppbtdis-float(float(achvent)*(float(outppb)/500.))/(float(achvent)+float(sumvda)/float(v)))*math.exp(-(float(achvent)+float(float(sumvda)/float(v)))*(t-tdis))+float(float(achvent)*(float(outppb)/500.))/(float(achvent)+float(sumvda)/float(v))	
+	ppbt = ppbt*500.
+	return round(ppbt, 1) #the unit of output ppbt is ppb, the convertion coefficient is 500; the input unit should also be ppb
 
 def getsumvda(r1, a1, r2, a2, r3, a3, r4, a4, r5, a5, r6, a6, r7, a7, r8, a8, vt):
 	vd1 = 36.*(float(vt)*float(r1)*36000./(4.*float(vt)+float(r1)*36000.)) #convert cm/s to m/h (multiple conversion coefficient, 36)
@@ -550,6 +566,7 @@ def getvt(ach):
 	return vt
 	
 if __name__ == '__main__':
+	#reaction probability of materials
 	material = OrderedDict([
 		('No material',0.0), ('Glass',6.06e-06), 
 		('Lucite',5.50e-08), ('Metal, Aluminium',1.08e-07), 
@@ -579,7 +596,7 @@ if __name__ == '__main__':
 		('Carpet, Nylon',1.38e-05), ('Carpet, Olefin',1.01e-05), 
 		('Carpet, Wool',1.06e-05), ('Brick',1.59e-05), 
 		('Activated carbon cloth',2.24e-05)
-		]) #reaction probability of materials
+		]) 
 	app = wx.App()
 	MyFrame().Show()
 	app.MainLoop()
