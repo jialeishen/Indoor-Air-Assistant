@@ -7,36 +7,11 @@ from matplotlib.figure import Figure
 
 class MyFrame(wx.Frame):
 	def __init__(self):
-		wx.Frame.__init__(self, None, -1, 'Indoor Ozone', size = (800,600))
+		wx.Frame.__init__(self, None, -1, 'Indoor Ozone PPB', size = (800,600))
 		panel = wx.Panel(self)
 		self.paneldraw = wx.Panel(panel, wx.ID_ANY, style=wx.NO_BORDER, pos = (200,340), size = wx.Size(560,190))
 		self.paneldraw.SetBackgroundColour('normal')
-
-
-		scores = [89, 98, 70, 80, 60, 78, 85, 90]
-		sum = 0
-		for s in scores:
-			sum += s
-		average = sum / len(scores)
-
-		t_score = numpy.arange(1, len(scores) + 1, 1)
-		s_score = numpy.array(scores)
-
-		self.figure_score = Figure()
-		self.figure_score.set_figheight(2.4)
-		self.figure_score.set_figwidth(7.2)
-		self.axes_score = self.figure_score.add_subplot(111)
-
-		self.axes_score.plot(t_score, s_score, 'b')
-		self.axes_score.axhline(y=average, color='r')
-		#self.axes_score.set_title('Indoor Ozone')
-		self.axes_score.grid(True)
-		self.axes_score.set_xlabel('Time (min)')
-		self.axes_score.set_ylabel('Indoor Ozone (ppb)')
-		FigureCanvas(self.paneldraw, -1, self.figure_score)
-
-
-
+		self.paneldraw.Show(False)
 
 		self.SetMaxSize((800,600)) #fix the frame size
 		self.SetMinSize((800,600)) #fix the frame size
@@ -82,6 +57,7 @@ class MyFrame(wx.Frame):
 		self.dtime.SetValue(30)
 		self.dtimelabel1 = wx.StaticText(panel, -1, 'Disinfection Time:', (20,255))
 		self.dtimelabel2 = wx.StaticText(panel, -1, 'min', (115,280))
+		self.dtime.Bind(wx.EVT_TEXT, self.DTime)
 		self.dtime.Enable(False)
 		self.dtimelabel1.Enable(False)
 		self.dtimelabel2.Enable(False)
@@ -199,20 +175,84 @@ class MyFrame(wx.Frame):
 		self.inppb.SetFont(font)
 		inppblabel = wx.StaticText(panel, -1, 'Indoor Ozone: ', (190,315))
 
+
+	def DrawPpb(self):
 		#draw disinfection ppb curve
+		inppbresults = []
+		ta = 5*self.dtime.GetValue()
+		for t in xrange(ta+1):
+			inppbresults.append(eqdynamic(float(self.outppb.GetValue()), 
+				self.achd1.GetValue()/10.0, self.achd2.GetValue()/10.0, 
+				float(self.volume.GetValue()), 
+				500.*float(self.indoorsource.GetValue()), 
+				getsumvda(material.get(self.material1.GetStringSelection()), 
+					float(self.area1.GetValue()), 
+					material.get(self.material2.GetStringSelection()), 
+					float(self.area2.GetValue()), 
+					material.get(self.material3.GetStringSelection()), 
+					float(self.area3.GetValue()), 
+					material.get(self.material4.GetStringSelection()), 
+					float(self.area4.GetValue()), 
+					material.get(self.material5.GetStringSelection()), 
+					float(self.area5.GetValue()), 
+					material.get(self.material6.GetStringSelection()), 
+					float(self.area6.GetValue()), 
+					material.get(self.material7.GetStringSelection()), 
+					float(self.area7.GetValue()), 
+					material.get(self.material8.GetStringSelection()), 
+					float(self.area8.GetValue()), 
+					getvt(self.ach.GetValue()/10.0) ), t/60., 
+				self.dtime.GetValue()/60.))
+		
+		t_score = numpy.arange(0, ta+1, 1)
+		s_score = numpy.array(inppbresults)
 
+		self.figure_score = Figure()
+		self.figure_score.set_figheight(2.4)
+		self.figure_score.set_figwidth(7.2)
+		self.axes_score = self.figure_score.add_subplot(111) #seperate the window into 1*1 matrix (subwindows), occupied the 1st subwindow
 
+		self.axes_score.plot(t_score, s_score, 'b')
+		self.axes_score.axhline(y = 140, color='r')
+		#self.axes_score.set_title('Indoor Ozone')
+		self.axes_score.grid(True)
+		self.axes_score.set_xlabel('Time (min)', fontsize=10)
+		self.axes_score.set_ylabel('Indoor Ozone (ppb)', fontsize=10)
+		FigureCanvas(self.paneldraw, -1, self.figure_score)
 
+	def ShowPpb(self):
+		#show indoor ppb result
+		return self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), 
+			self.ach.GetValue()/10.0, float(self.volume.GetValue()), 
+			500.*float(self.indoorsource.GetValue()), 
+			getsumvda(material.get(self.material1.GetStringSelection()), 
+				float(self.area1.GetValue()), 
+				material.get(self.material2.GetStringSelection()), 
+				float(self.area2.GetValue()), 
+				material.get(self.material3.GetStringSelection()), 
+				float(self.area3.GetValue()), 
+				material.get(self.material4.GetStringSelection()), 
+				float(self.area4.GetValue()), 
+				material.get(self.material5.GetStringSelection()), 
+				float(self.area5.GetValue()), 
+				material.get(self.material6.GetStringSelection()), 
+				float(self.area6.GetValue()), 
+				material.get(self.material7.GetStringSelection()), 
+				float(self.area7.GetValue()), 
+				material.get(self.material8.GetStringSelection()), 
+				float(self.area8.GetValue()), 
+				getvt(self.ach.GetValue()/10.0) )))+' ppb')
+	
 	def OutPpb(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def ACHScroll(self, event):
 		self.achvalue.SetValue(str(self.ach.GetValue()/10.0))
-		self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+		self.ShowPpb()
 		self.statusbar.SetStatusText('')
 	
 	def ACHText(self, event):
@@ -226,13 +266,13 @@ class MyFrame(wx.Frame):
 			else:
 				self.ach.SetValue(int(float(self.achvalue.GetValue())*10))
 				self.statusbar.SetStatusText('')
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+			self.ShowPpb()
 		except ValueError:
 			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
 
 	def ACHD1Scroll(self, event):
 		self.achvalued1.SetValue(str(self.achd1.GetValue()/10.0))
-		self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+		self.DrawPpb()
 		self.statusbar.SetStatusText('')
 	
 	def ACHD1Text(self, event):
@@ -246,13 +286,13 @@ class MyFrame(wx.Frame):
 			else:
 				self.achd1.SetValue(int(float(self.achvalued1.GetValue())*10))
 				self.statusbar.SetStatusText('')
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+			self.DrawPpb()
 		except ValueError:
 			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
 
 	def ACHD2Scroll(self, event):
 		self.achvalued2.SetValue(str(self.achd2.GetValue()/10.0))
-		self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+		self.DrawPpb()
 		self.statusbar.SetStatusText('')
 	
 	def ACHD2Text(self, event):
@@ -266,162 +306,176 @@ class MyFrame(wx.Frame):
 			else:
 				self.achd2.SetValue(int(float(self.achvalued2.GetValue())*10))
 				self.statusbar.SetStatusText('')
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+			self.DrawPpb()
 		except ValueError:
 			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
 
 	def IndoorSourceText(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')	
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
+	def DTime(self, event):
+		self.DrawPpb()
+		self.statusbar.SetStatusText('')
+
 	def VolumeText(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial1(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText1(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial2(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText2(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial3(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText3(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial4(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText4(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial5(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText5(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial6(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText6(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial7(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText7(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
 
 	def ChooseMaterial8(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
 		else:
-			self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
-			self.statusbar.SetStatusText('')
+			self.ShowPpb()
+		self.statusbar.SetStatusText('')
 
 	def AreaText8(self, event):
 		if self.disinfection.IsChecked():
-			pass
+			self.DrawPpb()
+			self.statusbar.SetStatusText('')
 		else:
 			try:
-				self.inppb.SetLabel(str(eqsteady(float(self.outppb.GetValue()), self.ach.GetValue()/10.0, float(self.volume.GetValue()), 500.*float(self.indoorsource.GetValue()), getsumvda(material.get(self.material1.GetStringSelection()), float(self.area1.GetValue()), material.get(self.material2.GetStringSelection()), float(self.area2.GetValue()), material.get(self.material3.GetStringSelection()), float(self.area3.GetValue()), material.get(self.material4.GetStringSelection()), float(self.area4.GetValue()), material.get(self.material5.GetStringSelection()), float(self.area5.GetValue()), material.get(self.material6.GetStringSelection()), float(self.area6.GetValue()), material.get(self.material7.GetStringSelection()), float(self.area7.GetValue()), material.get(self.material8.GetStringSelection()), float(self.area8.GetValue()), getvt(self.ach.GetValue()/10.0) )))+' ppb')
+				self.ShowPpb()
 				self.statusbar.SetStatusText('')
 			except ValueError:
 				self.statusbar.SetStatusText('ValueError! Please input a number...')
@@ -440,10 +494,12 @@ class MyFrame(wx.Frame):
 			self.dtimelabel1.Enable(True)
 			self.dtimelabel2.Enable(True)
 			self.disinfectionlabel.Enable(True)
+			self.paneldraw.Show(True)
 			self.ach.Enable(False)
 			self.achvalue.Enable(False)
 			self.achlabel1.Enable(False)
 			self.achlabel2.Enable(False)
+			self.inppb.Show(False)
 		else:
 			self.dtime.Enable(False)
 			self.achd1.Enable(False)
@@ -457,10 +513,12 @@ class MyFrame(wx.Frame):
 			self.dtimelabel1.Enable(False)
 			self.dtimelabel2.Enable(False)
 			self.disinfectionlabel.Enable(False)
+			self.paneldraw.Show(False)
 			self.ach.Enable(True)
 			self.achvalue.Enable(True)
 			self.achlabel1.Enable(True)
 			self.achlabel2.Enable(True)
+			self.inppb.Show(True)
 
 def eqsteady(outppb, ach, v, source, sumvda):
 	ppbsteady = float(float(ach)*float(outppb)+float(source)/float(v))/(float(ach)+float(sumvda)/float(v))
@@ -469,7 +527,7 @@ def eqsteady(outppb, ach, v, source, sumvda):
 def eqdynamic(outppb, achdis, achvent, v, source, sumvda, t, tdis):
 	initppb = float(float(achdis)*float(outppb))/(float(achdis)+float(sumvda)/float(v))
 	ppbtdis = (initppb-float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*tdis)+float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
-	if t < tdis:
+	if t <= tdis:
 		ppbt = (initppb-float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v)))*math.exp(-(float(achdis)+float(float(sumvda)/float(v)))*t)+float(float(achdis)*float(outppb)+float(source)/float(v))/(float(achdis)+float(sumvda)/float(v))
 	else:
 		ppbt = (ppbtdis-float(float(achvent)*float(outppb))/(float(achvent)+float(sumvda)/float(v)))*math.exp(-(float(achvent)+float(float(sumvda)/float(v)))*(t-tdis))+float(float(achvent)*float(outppb))/(float(achvent)+float(sumvda)/float(v))	
