@@ -23,7 +23,7 @@ class MyFrame(wx.Frame):
 		self.statusbar.SetStatusText('Indoor Ozone Estimation')
 		
 		#information
-		self.info = wx.StaticText(panel, -1, 'Version: 1.0.0.20170307_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
+		self.info = wx.StaticText(panel, -1, 'Version: 1.0.1.20170308_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
 		self.info.SetForegroundColour('grey')
 		ifont = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 		self.info.SetFont(ifont)
@@ -273,16 +273,16 @@ class MyFrame(wx.Frame):
 		try:
 			if float(self.achvalue.GetValue()) >20.0:
 				self.ach.SetValue(200)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			elif float(self.achvalue.GetValue()) <0.0:
 				self.ach.SetValue(0)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			else:
 				self.ach.SetValue(int(float(self.achvalue.GetValue())*10))
 				self.statusbar.SetStatusText('')
 			self.ShowPpb()
 		except ValueError:
-			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
+			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 5...')
 
 	def ACHD1Scroll(self, event):
 		self.achvalued1.SetValue(str(self.achd1.GetValue()/10.0))
@@ -293,16 +293,16 @@ class MyFrame(wx.Frame):
 		try:
 			if float(self.achvalued1.GetValue()) >20.0:
 				self.achd1.SetValue(200)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			elif float(self.achvalued1.GetValue()) <0.0:
 				self.achd1.SetValue(0)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			else:
 				self.achd1.SetValue(int(float(self.achvalued1.GetValue())*10))
 				self.statusbar.SetStatusText('')
 			self.DrawPpb()
 		except ValueError:
-			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 20...')
+			self.statusbar.SetStatusText('ValueError! Please input a number from 0 to 5...')
 
 	def ACHD2Scroll(self, event):
 		self.achvalued2.SetValue(str(self.achd2.GetValue()/10.0))
@@ -313,10 +313,10 @@ class MyFrame(wx.Frame):
 		try:
 			if float(self.achvalued2.GetValue()) >20.0:
 				self.achd2.SetValue(200)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			elif float(self.achvalued2.GetValue()) <0.0:
 				self.achd2.SetValue(0)
-				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 20...')
+				self.statusbar.SetStatusText('RangeError! Air change rate ranges from 0 to 5...')
 			else:
 				self.achd2.SetValue(int(float(self.achvalued2.GetValue())*10))
 				self.statusbar.SetStatusText('')
@@ -326,8 +326,11 @@ class MyFrame(wx.Frame):
 
 	def IndoorSourceText(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -341,8 +344,11 @@ class MyFrame(wx.Frame):
 
 	def VolumeText(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -359,8 +365,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText1(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -377,8 +386,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText2(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -395,8 +407,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText3(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -413,8 +428,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText4(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -431,8 +449,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText5(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -449,8 +470,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText6(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -467,8 +491,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText7(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
@@ -485,8 +512,11 @@ class MyFrame(wx.Frame):
 
 	def AreaText8(self, event):
 		if self.disinfection.IsChecked():
-			self.DrawPpb()
-			self.statusbar.SetStatusText('')
+			try:
+				self.DrawPpb()
+				self.statusbar.SetStatusText('')
+			except ValueError:
+				self.statusbar.SetStatusText('ValueError! Please input a number...')
 		else:
 			try:
 				self.ShowPpb()
