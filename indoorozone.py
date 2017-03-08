@@ -25,7 +25,7 @@ class MyFrame(wx.Frame):
 		#information
 		self.info = wx.StaticText(panel, -1, 'Version: 1.0.0.20170307_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
 		self.info.SetForegroundColour('grey')
-		ifont = wx.Font(8, wx.DECORATIVE, wx.NORMAL, wx.NORMAL)
+		ifont = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 		self.info.SetFont(ifont)
 
 		#show logo image
@@ -60,7 +60,7 @@ class MyFrame(wx.Frame):
 		self.disinfection.Bind(wx.EVT_CHECKBOX, self.Disinfection)
 		self.disinfectionlabel = wx.StaticText(panel, -1, 'Disinfection Settings', (20,230))
 		self.disinfectionlabel.SetForegroundColour('red')
-		dfont = wx.Font(11, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
+		dfont = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.BOLD)
 		self.disinfectionlabel.SetFont(dfont)
 		self.disinfectionlabel.Enable(False)
 
@@ -184,7 +184,7 @@ class MyFrame(wx.Frame):
 		#show inppb result
 		self.inppb = wx.StaticText(panel, -1, 'Ozone', pos = (350,410), size = (200,-1), style = wx.ALIGN_RIGHT)
 		self.inppb.SetForegroundColour('blue')
-		font = wx.Font(30, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
+		font = wx.Font(30, wx.ROMAN, wx.NORMAL, wx.BOLD)
 		self.inppb.SetFont(font)
 		inppblabel = wx.StaticText(panel, -1, 'Indoor Ozone: ', (190,315))
 
