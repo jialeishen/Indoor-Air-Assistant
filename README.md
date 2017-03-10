@@ -1,6 +1,6 @@
 ![logo](https://github.com/jialeishen/Indoor-Ozone-PPB/blob/master/logo.jpg)
 # Indoor-Ozone-PPB
- - Version: 1.0.1.20170308_alpha
+ - Version: 1.0.2.20170310_alpha
 
  - This program aims to estimate the indoor ozone concentration levels based on a single zone mass balance model. Researches related to this program are supported financially by the national key project of the Ministry of Science and Technology, China on “Green Buildings and Building Industrialization” through Grant No. 2016YFC0700500. Special thanks to the researchers who contributes a lot to indoor air quality, since the program was inspired by their works. 
 
