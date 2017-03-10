@@ -1,9 +1,13 @@
+#-*-coding:utf-8-*-
+
 import numpy 
 import math 
 import wx  
 from collections import OrderedDict
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
+from getoutdoorozone import IPToLocation
+from getoutdoorozone import GetAQI
 
 class MyFrame(wx.Frame):
 	def __init__(self):
@@ -20,10 +24,10 @@ class MyFrame(wx.Frame):
 		self.SetMinSize((800,600)) #fix the frame size
 
 		self.statusbar = self.CreateStatusBar()
-		self.statusbar.SetStatusText('Indoor Ozone Estimation')
+		self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
 		
 		#information
-		self.info = wx.StaticText(panel, -1, 'Version: 1.0.1.20170308_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
+		self.info = wx.StaticText(panel, -1, 'Version: 1.0.2.20170310_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
 		self.info.SetForegroundColour('grey')
 		ifont = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 		self.info.SetFont(ifont)
@@ -32,70 +36,88 @@ class MyFrame(wx.Frame):
 		image = wx.Image("logo.jpg",wx.BITMAP_TYPE_JPEG)
 		logo = wx.StaticBitmap(self.panellogo, -1, wx.BitmapFromImage(image))
 		
+		#your city
+		citylabel1 = wx.StaticText(panel, -1, 'Your City:', (20,15))
+		try:
+			ip = IPToLocation()
+			cityname = ip.city().decode('utf-8')
+			self.city = wx.StaticText(panel, -1, cityname, (50,40), (80,-1))
+			self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
+		except:
+			self.city = wx.StaticText(panel, -1, 'Offline', (50,40), (80,-1))
+			self.statusbar.SetStatusText('You are offline! Please check your internet connection...')
+
 		#outdoor ozone
-		self.outppb = wx.SpinCtrl(panel, -1, 'Outdoor Ozone', (30,40), (80,-1))
+		self.outppb = wx.SpinCtrl(panel, -1, 'Outdoor Ozone', (30,100), (80,-1))
 		self.outppb.SetRange(0,10000)
-		self.outppb.SetValue(100)
-		outppblabel1 = wx.StaticText(panel, -1, 'Outdoor Ozone:', (20,15))
-		outppblabel2 = wx.StaticText(panel, -1, 'ppb', (115,40))
+		outppblabel1 = wx.StaticText(panel, -1, 'Outdoor Ozone:', (20,75))
+		outppblabel2 = wx.StaticText(panel, -1, 'ppb', (115,100))
 		self.outppb.Bind(wx.EVT_TEXT, self.OutPpb)
+		try:
+			webozone = GetAQI(cityname)
+			webozone = int(webozone.ozone())
+			self.outppb.SetValue(webozone)
+			self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
+		except:
+			self.outppb.SetValue(100)
+			self.statusbar.SetStatusText('You are offline! Please check your internet connection...')
 
 		#air change rate
-		self.ach = wx.Slider(panel, -1, 5, 0, 50, (20,100), (90,-1), 
+		self.ach = wx.Slider(panel, -1, 5, 0, 50, (20,160), (90,-1), 
 			style = wx.SL_HORIZONTAL|wx.SL_TOP)
 		self.ach.Bind(wx.EVT_SCROLL, self.ACHScroll)
-		self.achvalue = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,100), (35,-1))
+		self.achvalue = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,160), (35,-1))
 		self.achvalue.Bind(wx.EVT_TEXT, self.ACHText)
-		self.achlabel1 = wx.StaticText(panel, -1, 'Air Change Per Hour:', (20,75))
-		self.achlabel2 = wx.StaticText(panel, -1, '/h', (150,100))
+		self.achlabel1 = wx.StaticText(panel, -1, 'Air Change Per Hour:', (20,135))
+		self.achlabel2 = wx.StaticText(panel, -1, '/h', (150,160))
 
 		#indoor source
-		self.indoorsource = wx.TextCtrl(panel, -1, '0', (30,160), (80,-1))
+		self.indoorsource = wx.TextCtrl(panel, -1, '0', (30,220), (80,-1))
 		self.indoorsource.Bind(wx.EVT_TEXT, self.IndoorSourceText)
-		indoorsourcelabel1 = wx.StaticText(panel, -1, 'Indoor Source:', (20,135))
-		indoorsourcelabel2 = wx.StaticText(panel, -1, 'mg/h', (115,160))
+		indoorsourcelabel1 = wx.StaticText(panel, -1, 'Indoor Source:', (20,195))
+		indoorsourcelabel2 = wx.StaticText(panel, -1, 'mg/h', (115,220))
 
 		#disinfection
-		self.disinfection = wx.CheckBox(panel,-1,'Disinfection',pos = (20,195),size=(100,-1))
+		self.disinfection = wx.CheckBox(panel,-1,'Disinfection',pos = (20,255),size=(100,-1))
 		self.disinfection.Bind(wx.EVT_CHECKBOX, self.Disinfection)
-		self.disinfectionlabel = wx.StaticText(panel, -1, 'Disinfection Settings', (20,230))
+		self.disinfectionlabel = wx.StaticText(panel, -1, 'Disinfection Settings', (20,290))
 		self.disinfectionlabel.SetForegroundColour('red')
 		dfont = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.BOLD)
 		self.disinfectionlabel.SetFont(dfont)
 		self.disinfectionlabel.Enable(False)
 
 		#disinfection time
-		self.dtime = wx.SpinCtrl(panel, -1, 'Disinfection Time', (30,280), (80,-1))
+		self.dtime = wx.SpinCtrl(panel, -1, 'Disinfection Time', (30,340), (80,-1))
 		self.dtime.SetRange(0,300)
 		self.dtime.SetValue(30)
-		self.dtimelabel1 = wx.StaticText(panel, -1, 'Disinfection Time:', (20,255))
-		self.dtimelabel2 = wx.StaticText(panel, -1, 'min', (115,280))
+		self.dtimelabel1 = wx.StaticText(panel, -1, 'Disinfection Time:', (20,315))
+		self.dtimelabel2 = wx.StaticText(panel, -1, 'min', (115,340))
 		self.dtime.Bind(wx.EVT_TEXT, self.DTime)
 		self.dtime.Enable(False)
 		self.dtimelabel1.Enable(False)
 		self.dtimelabel2.Enable(False)
 
 		#ach during disinfection 
-		self.achd1 = wx.Slider(panel, -1, 5, 0, 50, (20,340), (90,-1), 
+		self.achd1 = wx.Slider(panel, -1, 5, 0, 50, (20,400), (90,-1), 
 			style = wx.SL_HORIZONTAL|wx.SL_TOP)
 		self.achd1.Bind(wx.EVT_SCROLL, self.ACHD1Scroll)
-		self.achvalued1 = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,340), (35,-1))
+		self.achvalued1 = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,400), (35,-1))
 		self.achvalued1.Bind(wx.EVT_TEXT, self.ACHD1Text)
-		self.achd1label1 = wx.StaticText(panel, -1, 'ACH During Disinfection:', (20,315))
-		self.achd1label2 = wx.StaticText(panel, -1, '/h', (150,340))
+		self.achd1label1 = wx.StaticText(panel, -1, 'ACH During Disinfection:', (20,375))
+		self.achd1label2 = wx.StaticText(panel, -1, '/h', (150,400))
 		self.achd1.Enable(False)
 		self.achvalued1.Enable(False)
 		self.achd1label1.Enable(False)
 		self.achd1label2.Enable(False)
 
 		#ach after disinfection 
-		self.achd2 = wx.Slider(panel, -1, 5, 0, 50, (20,400), (90,-1), 
+		self.achd2 = wx.Slider(panel, -1, 5, 0, 50, (20,460), (90,-1), 
 			style = wx.SL_HORIZONTAL|wx.SL_TOP)
 		self.achd2.Bind(wx.EVT_SCROLL, self.ACHD2Scroll)
-		self.achvalued2 = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,400), (35,-1))
+		self.achvalued2 = wx.TextCtrl(panel, -1, str(self.ach.GetValue()/10.0), (110,460), (35,-1))
 		self.achvalued2.Bind(wx.EVT_TEXT, self.ACHD2Text)
-		self.achd2label1 = wx.StaticText(panel, -1, 'ACH After Disinfection:', (20,375))
-		self.achd2label2 = wx.StaticText(panel, -1, '/h', (150,400))
+		self.achd2label1 = wx.StaticText(panel, -1, 'ACH After Disinfection:', (20,435))
+		self.achd2label2 = wx.StaticText(panel, -1, '/h', (150,460))
 		self.achd2.Enable(False)
 		self.achvalued2.Enable(False)
 		self.achd2label1.Enable(False)
@@ -629,4 +651,5 @@ if __name__ == '__main__':
 		]) 
 	app = wx.App()
 	MyFrame().Show()
+	
 	app.MainLoop()
