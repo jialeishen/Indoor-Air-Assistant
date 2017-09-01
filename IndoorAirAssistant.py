@@ -33,7 +33,7 @@ class MyFrame(wx.Frame):
 		self.info.SetFont(ifont)
 
 		#show logo image
-		image = wx.Image("logo.jpg",wx.BITMAP_TYPE_JPEG)
+		image = wx.Image("newlogo.jpg",wx.BITMAP_TYPE_JPEG)
 		logo = wx.StaticBitmap(self.panellogo, -1, wx.BitmapFromImage(image))
 		
 		#your city
