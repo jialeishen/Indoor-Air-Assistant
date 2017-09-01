@@ -11,7 +11,7 @@ from getoutdoorozone import GetAQI
 
 class MyFrame(wx.Frame):
 	def __init__(self):
-		wx.Frame.__init__(self, None, -1, 'Indoor Ozone PPB', size = (800,600))
+		wx.Frame.__init__(self, None, -1, 'Indoor Air Assistant', size = (800,600))
 		panel = wx.Panel(self)
 		self.backgroundcolour = '#F5F5F5' #whitesmoke
 		panel.SetBackgroundColour(self.backgroundcolour)
@@ -24,10 +24,10 @@ class MyFrame(wx.Frame):
 		self.SetMinSize((800,600)) #fix the frame size
 
 		self.statusbar = self.CreateStatusBar()
-		self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
+		self.statusbar.SetStatusText('Welcome to Indoor Air Assistant...')
 		
 		#information
-		self.info = wx.StaticText(panel, -1, 'Version: 1.0.2.20170310_alpha\nMST China, No. 2016YFC0700500\nNanjing University', (10,490))
+		self.info = wx.StaticText(panel, -1, 'Version: 1.1.0.20170310_release\nReleased by Air Lab in NJU\nAll rights reserved by author', (10,490))
 		self.info.SetForegroundColour('grey')
 		ifont = wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 		self.info.SetFont(ifont)
@@ -42,7 +42,7 @@ class MyFrame(wx.Frame):
 			ip = IPToLocation()
 			cityname = ip.city().decode('utf-8')
 			self.city = wx.StaticText(panel, -1, cityname, (50,40), (80,-1))
-			self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
+			self.statusbar.SetStatusText('Welcome to Indoor Air Assistant...')
 		except:
 			self.city = wx.StaticText(panel, -1, 'Offline', (50,40), (80,-1))
 			self.statusbar.SetStatusText('You are offline! Please check your internet connection...')
@@ -57,7 +57,7 @@ class MyFrame(wx.Frame):
 			webozone = GetAQI(cityname)
 			webozone = int(webozone.ozone())
 			self.outppb.SetValue(webozone)
-			self.statusbar.SetStatusText('Welcome!!! Indoor ozone levels estimation...')
+			self.statusbar.SetStatusText('Welcome to Indoor Air Assistant...')
 		except:
 			self.outppb.SetValue(100)
 			self.statusbar.SetStatusText('You are offline! Please check your internet connection...')
