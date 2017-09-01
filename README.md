@@ -1,4 +1,4 @@
-![logo](https://github.com/jialeishen/Indoor-Ozone-PPB/blob/master/logo.jpg)
+![logo](https://github.com/jialeishen/Indoor-Ozone-PPB/blob/master/newlogo.jpg)
 # Indoor-Ozone-PPB
  - Version: 1.1.0.20170310_release
 
