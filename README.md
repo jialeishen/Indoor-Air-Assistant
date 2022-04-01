@@ -2,7 +2,7 @@
 # Indoor-Air-Assistant
  - Version: 1.1.0.20170310_release
 
- - This program aims to estimate the indoor ozone concentration levels based on a single zone mass balance model, and is still in development. You can read [this paper](http://www.jialeishen.com/publication/hb2017_2/) for better understanding this program. Researches related to this program are supported financially by the national key project of the Ministry of Science and Technology, China on “[Green Buildings and Building Industrialization](http://buildingventilation.org/eng_index.html)” through Grant No. 2016YFC0700500. Special thanks to all the researchers who contributes to the investigation of indoor air quality, since the program was inspired by their works, particularlly the [IMPACT](http://www.ucl.ac.uk/sustainableheritage-save/impact/index.htm) program. 
+ - This program aims to estimate the indoor ozone concentration levels based on a single zone mass balance model, and is still in development. You can read [this paper](http://www.jialeishen.com/talks/2017-hb2017-2) for better understanding this program. Researches related to this program are supported financially by the national key project of the Ministry of Science and Technology, China on “[Green Buildings and Building Industrialization](http://buildingventilation.org/eng_index.html)” through Grant No. 2016YFC0700500. Special thanks to all the researchers who contributes to the investigation of indoor air quality, since the program was inspired by their works, particularlly the [IMPACT](http://www.ucl.ac.uk/sustainableheritage-save/impact/index.htm) program. 
 
  - Author of this program is Air Lab of Nanjing University, China. **All rights reserved by author.**
 
